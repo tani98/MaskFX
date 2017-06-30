@@ -1,0 +1,6 @@
+com\crazycode\mask\elements\DoubleField.class
+com\crazycode\mask\elements\EmailField.class
+com\crazycode\mask\elements\IntegerField.class
+com\crazycode\mask\elements\MaskField.class
+com\crazycode\app\MainApp.class
+com\crazycode\mask\elements\MaskField$Position.class
