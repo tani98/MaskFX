@@ -5,6 +5,7 @@
  */
 package com.crazycode.mask.elements;
 
+import java.util.ArrayList;
 import javafx.scene.control.TextField;
 
 /**
@@ -13,28 +14,43 @@ import javafx.scene.control.TextField;
  */
 public class EmailField extends TextField {
 
-    String first = "[A-Za-z0-9.]";
-    String email = "^[\\w-]+(\\.[\\w-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private boolean isAt; //Si contiene arroba
+    private final ArrayList<String> patterns;
+
+    public EmailField() {
+        super();
+        patterns = new ArrayList<>();
+        isAt = false;
+        setMask();
+    }
+
+    private void setMask() {
+        patterns.add("[0-z.]");
+    }
 
     @Override
     public void replaceText(int start, int end, String text) {
-        String oldString = getText();
-
-        if (text.isEmpty() || text.matches(first) || forAt(oldString)) {
+        if (text.isEmpty()) {
             super.replaceText(start, end, text);
-        }
-
-    }
-
-    private boolean forAt(String text) {
-        int count = 0;
-        if (!text.isEmpty()) {
-            if (text.contains("@")) {
-                count++;
+        } else {
+            if (text.matches(patterns.get(0)) && !text.equals("@")) {
+                super.replaceText(start, end, text);
+            } else if (!isAt && (start>0) && text.equals("@")) {
+                super.replaceText(start, end, text);
+                isAt = true;
             }
-            return (count == 0);
         }
-        return false;
     }
+
+    @Override
+    public void deleteText(int start, int end) {
+        String text = getText();
+        if ((text.substring(start, end)).equals("@")) {
+            isAt = false;
+        }
+        super.deleteText(start, end); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
 
 }

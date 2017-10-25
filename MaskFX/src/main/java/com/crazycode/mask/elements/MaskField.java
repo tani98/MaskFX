@@ -1,290 +1,157 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * MIT License
+ *
+ * Copyright (c) 2017 Tanieska
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 package com.crazycode.mask.elements;
 
 import java.util.ArrayList;
-import java.util.List;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.TextField;
+import org.controlsfx.control.textfield.CustomTextField;
 
 /**
  *
  * @author Tanieska
  */
-public class MaskField extends TextField {
+public class MaskField extends CustomTextField {
 
-    /**
-     * sólo permiten introducir números en la máscara
-     */
-    public static final char MASK_DIGIT = 'D';
+    private String mask;
+    private final ArrayList<String> patterns;
 
-    /**
-     * permite introducir las letras y números en la máscara
-     */
-    public static final char MASK_DIG_OR_CHAR = 'W';
-    /**
-     * permite introducir sólo letras
-     */
-    public static final char MASK_CHARACTER = 'A';
-
-    public static final char WHAT_MASK_CHAR = '#';
-    public static final char WHAT_MASK_NO_CHAR = '-';
-
-    public static final char PLACEHOLDER_CHAR_DEFAULT = ' ';
-
-    private List<Position> objectMask = new ArrayList<>();
-
-    /**
-     * texto de altura sin el uso de máscaras
-     */
-    private StringProperty plainText;
-
-    public final String getPlainText() {
-        return plainTextProperty().get();
-    }
-
-    public final void setPlainText(String value) {
-        plainTextProperty().set(value);
-        updateShowingField();
-    }
-
-    public final StringProperty plainTextProperty() {
-        if (plainText == null) {
-            plainText = new SimpleStringProperty(this, "plainText", "");
-        }
-        return plainText;
-    }
-
-    /**
-     * la máscara es visible en el campo de entrada
-     */
-    private StringProperty mask;
-
-    public final String getMask() {
-        return maskProperty().get();
-    }
-
-    public final void setMask(String value) {
-        maskProperty().set(value);
-        rebuildObjectMask();
-        updateShowingField();
-    }
-
-    public final StringProperty maskProperty() {
-        if (mask == null) {
-            mask = new SimpleStringProperty(this, "mask");
-        }
-
-        return mask;
-    }
-
-    /**
-     * si la máscara tiene que mostrar los caracteres que están reservadas para
-     * la máscara, se le da una pista adicional
-     */
-    private StringProperty whatMask;
-
-    public final String getWhatMask() {
-        return whatMaskProperty().get();
-    }
-
-    public final void setWhatMask(String value) {
-        whatMaskProperty().set(value);
-        rebuildObjectMask();
-        updateShowingField();
-    }
-
-    public final StringProperty whatMaskProperty() {
-        if (whatMask == null) {
-            whatMask = new SimpleStringProperty(this, "whatMask");
-        }
-        return whatMask;
-    }
-
-    /**
-     * sustitución de símbolos
-     */
-    private StringProperty placeholder;
-
-    public final String getPlaceholder() {
-        return placeholderProperty().get();
-    }
-
-    public final void setPlaceholder(String value) {
-        placeholderProperty().set(value);
-        rebuildObjectMask();
-        updateShowingField();
-    }
-
-    public final StringProperty placeholderProperty() {
-        if (placeholder == null) {
-            placeholder = new SimpleStringProperty(this, "placeholder");
-        }
-        return placeholder;
-    }
-
-    private class Position {
-
-        public char mask;
-        public char whatMask;
-        public char placeholder;
-
-        public Position(char mask, char whatMask, char placeholder) {
-            this.mask = mask;
-            this.placeholder = placeholder;
-            this.whatMask = whatMask;
-        }
-
-        public boolean isPlainCharacter() {
-            return whatMask == WHAT_MASK_CHAR;
-        }
-
-        public boolean isCorrect(char c) {
-            switch (mask) {
-                case MASK_DIGIT:
-                    return Character.isDigit(c);
-                case MASK_CHARACTER:
-                    return Character.isLetter(c);
-                case MASK_DIG_OR_CHAR:
-                    return Character.isLetter(c) || Character.isDigit(c);
-            }
-            return false;
-        }
-    }
-
-    /**
-     * genera una lista de objetos para cada máscara de los personajes (tipos de
-     * elementos)
-     */
-    private void rebuildObjectMask() {
-        objectMask = new ArrayList<>();
-
-        for (int i = 0; i < getMask().length(); i++) {
-            char m = getMask().charAt(i);
-            char w = WHAT_MASK_CHAR;
-            char p = PLACEHOLDER_CHAR_DEFAULT;
-
-            if (getWhatMask() != null && i < getWhatMask().length()) {
-                //que se especifique símbolo enmascarar o no
-                if (getWhatMask().charAt(i) != WHAT_MASK_CHAR) {
-                    w = WHAT_MASK_NO_CHAR;
-                }
-            } else {
-                //ya que no se especifica qué tipo de personaje - usted se conoce
-                //y si el personaje no se encuentra entre las máscaras de los personajes - que es considerado como un simple literal
-                if (m != MASK_CHARACTER && m != MASK_DIG_OR_CHAR && m != MASK_DIGIT) {
-                    w = WHAT_MASK_NO_CHAR;
-                }
-
-            }
-
-            if (getPlaceholder() != null && i < getPlaceholder().length()) {
-                p = getPlaceholder().charAt(i);
-            }
-
-            objectMask.add(new Position(m, w, p));
-        }
-    }
-
-    /**
-     * impone un texto plainText en una máscara dada, corrige la posición
-     */
-    private void updateShowingField() {
-        int counterPlainCharInMask = 0;
-        int lastPositionPlainCharInMask = 0;
-        int firstPlaceholderInMask = -1;
-        String textMask = "";
-        String textPlain = getPlainText();
-        for (int i = 0; i < objectMask.size(); i++) {
-            Position p = objectMask.get(i);
-            if (p.isPlainCharacter()) {
-                if (textPlain.length() > counterPlainCharInMask) {
-
-                    char c = textPlain.charAt(counterPlainCharInMask);
-                    while (!p.isCorrect(c)) {
-                        //вырезаем то что не подошло
-                        textPlain = textPlain.substring(0, counterPlainCharInMask) + textPlain.substring(counterPlainCharInMask + 1);
-
-                        if (textPlain.length() > counterPlainCharInMask) {
-                            c = textPlain.charAt(counterPlainCharInMask);
-                        } else {
-                            break;
-                        }
-                    }
-
-                    textMask += c;
-                    lastPositionPlainCharInMask = i;
-                } else {
-                    textMask += p.placeholder;
-                    if (firstPlaceholderInMask == -1) {
-                        firstPlaceholderInMask = i;
-                    }
-                }
-
-                counterPlainCharInMask++;
-
-            } else {
-                textMask += p.mask;
-            }
-        }
-
-        setText(textMask);
-
-        if (firstPlaceholderInMask == -1) {
-            firstPlaceholderInMask = 0;
-        }
-
-        int caretPosition = (textPlain.length() > 0 ? lastPositionPlainCharInMask + 1 : firstPlaceholderInMask);
-        selectRange(caretPosition, caretPosition);
-
-        if (textPlain.length() > counterPlainCharInMask) {
-            textPlain = textPlain.substring(0, counterPlainCharInMask);
-        }
-
-        if (!textPlain.equals(getPlainText())) {
-            setPlainText(textPlain);
-        }
-
-    }
-
-    private int interpretMaskPositionInPlainPosition(int posMask) {
-        int posPlain = 0;
-
-        for (int i = 0; i < objectMask.size() && i < posMask; i++) {
-            Position p = objectMask.get(i);
-            if (p.isPlainCharacter()) {
-                posPlain++;
-            }
-        }
-
-        return posPlain;
+    public MaskField() {
+        super();
+        patterns = new ArrayList<>();
     }
 
     @Override
     public void replaceText(int start, int end, String text) {
-
-        int plainStart = interpretMaskPositionInPlainPosition(start);
-        int plainEnd = interpretMaskPositionInPlainPosition(end);
-
-        String plainText1 = "";
-        if (getPlainText().length() > plainStart) {
-            plainText1 = getPlainText().substring(0, plainStart);
+        String tempText = getText() + text;
+        if (mask == null || mask.length() == 0) {
+            super.replaceText(start, end, text);
+        } else if (tempText.matches(this.mask) || tempText.length() == 0) {
+            super.replaceText(start, end, text);
+        } else if (text.isEmpty()) {
+            super.replaceText(start, end, text);
         } else {
-            plainText1 = getPlainText();
+            if (tempText.length() < patterns.size()) {
+                if (text.matches(patterns.get(start))) {
+                    super.replaceText(start, end, text);
+                }
+            }
         }
-
-        String plainText2 = "";
-        if (getPlainText().length() > plainEnd) {
-            plainText2 = getPlainText().substring(plainEnd);
-        } else {
-            plainText2 = "";
-        }
-
-        setPlainText(plainText1 + text + plainText2);
-
     }
+
+    /**
+     * @return the Regex Mask
+     */
+    public String getMask() {
+        return mask;
+    }
+
+    /**
+     * @param mask the mask to set
+     */
+    public void setMask(String mask) {
+
+        String tempMask = "^";
+
+        for (int i = 0; i < mask.length(); ++i) {
+
+            char temp = mask.charAt(i);
+            String regex;
+            int counter = 1;
+            int step = 0;
+
+            if (i < mask.length() - 1) {
+                for (int j = i + 1; j < mask.length(); ++j) {
+                    if (temp == mask.charAt(j)) {
+                        ++counter;
+                        step = j;
+                    } else if (mask.charAt(j) == '!') {
+                        counter = -1;
+                        step = j;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            switch (temp) {
+                case '*':
+                    regex = ".";             //Accept any character
+                    break;
+                case 'S':
+                    regex = "[^\\s]";        //Any character, except Space
+                    break;
+                case 'P':
+                    regex = "[A-z.]";       //Only Letters and Points
+                    break;
+                case 'M':
+                    regex = "[0-z.]";       //Letters, Numbers and Points
+                    break;
+                case 'A':
+                    regex = "[0-z]";        //Only Alphanumerics
+                    break;
+                case 'N':
+                    regex = "[0-9]";        //Only Numbers
+                    break;
+                case 'L':
+                    regex = "[A-z]";        //Only Letters
+                    break;
+                case 'U':
+                    regex = "[A-Z]";        //Only Uppercase Letters
+                    break;
+                case 'l':
+                    regex = "[a-z]";        //Only Lowercase Letters
+                    break;
+                case '.':
+                    regex = "\\.";
+                    break;
+                default:
+                    regex = Character.toString(temp);
+                    break;
+            }
+
+            if (counter != 1) {
+
+                this.patterns.add(regex);
+
+                if (counter == -1) {
+                    regex += "+";
+                    this.patterns.add(regex);
+                } else {
+                    String tempRegex = regex;
+                    for (int k = 1; k < counter; ++k) {
+                        regex += tempRegex;
+                        this.patterns.add(tempRegex);
+                    }
+                }
+
+                i = step;
+
+            } else {
+                this.patterns.add(regex);
+            }
+            tempMask += regex;
+        }
+
+        this.mask = tempMask + "$";
+    }
+
 }

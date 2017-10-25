@@ -5,6 +5,7 @@
  */
 package com.crazycode.mask.elements;
 
+import java.util.ArrayList;
 import javafx.scene.control.TextField;
 
 /**
@@ -13,55 +14,40 @@ import javafx.scene.control.TextField;
  */
 public class DoubleField extends TextField {
 
-    public int maxLength;
-    int count = 0;
+    private boolean isDecimal;
+    private final ArrayList<String> patterns;
 
     public DoubleField() {
         super();
+        patterns = new ArrayList<>();
+        setMask();
     }
 
-    String expression = "\\d"; //es número
+    private void setMask() {
+        patterns.add("[0-9]");
+        patterns.add(".");
+    }
 
     @Override
     public void replaceText(int start, int end, String text) {
-        String oldString = getText();
-
-        if (isOk(text, oldString)) {
-            if (getMaxLength() > 0) {
-                if (oldString.length() < getMaxLength()) {
-                    super.replaceText(start, end, text);
-                }
-            } else {
+        if (text.isEmpty()) {
+            super.replaceText(start, end, text);
+        } else {
+            if (text.matches(patterns.get(0))) {
                 super.replaceText(start, end, text);
+            } else if (!isDecimal && text.matches(patterns.get(1))) {
+                super.replaceText(start, end, text);
+                isDecimal = true;
             }
-            count = 0;
         }
     }
 
-    private boolean forDecimal(String text) {
-        int count = 0;
-        if (!text.isEmpty()) {
-            if (text.contains(".")) {
-                count++;
-            }
-            return (count == 0);
+    @Override
+    public void deleteText(int start, int end) {
+        String text = getText();
+        if ((text.substring(start, end)).equals(".")) {
+            isDecimal = false;
         }
-        return false;
+        super.deleteText(start, end); //To change body of generated methods, choose Tools | Templates.
     }
-
-    private boolean isOk(String text, String oldString) {
-        return text.isEmpty() || text.matches(expression) || forDecimal(oldString);
-    }
-
-    /*
-    *El valor de caracter maximo
-     */
-    public final void setMaxLength(int value) {
-        this.maxLength = value;
-    }
-
-    public int getMaxLength() {
-        return maxLength;
-    }
-
 }
