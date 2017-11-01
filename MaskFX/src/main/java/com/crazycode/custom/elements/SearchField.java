@@ -5,10 +5,12 @@
  */
 package com.crazycode.custom.elements;
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import com.crazycode.util.ImageClass;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.controlsfx.control.textfield.CustomTextField;
 
 /**
@@ -17,42 +19,46 @@ import org.controlsfx.control.textfield.CustomTextField;
  */
 public class SearchField extends CustomTextField {
 
-    static FontAwesomeIconView icon;
-    
-    private static final String iconSearch = "-glyph-name: SEARCH;";
-    private static final String iconCancel = "-glyph-name: REMOVE;";
+    private final Label lbl;
+    private boolean isSearch;
 
     public SearchField() {
         super();
-        icon = new FontAwesomeIconView();
-        setIcon(this, iconSearch);
-        setChange(this);
+        lbl = new Label();
+        setIcon(ImageClass.icSearch_A());
+        setChange();
         setDeleteOption(this);
     }
 
-    private static void setIcon(CustomTextField field, String iconString) {
-        final Label lbl = new Label();        
-        icon.setStyle(iconString);
-        lbl.setGraphic(icon);
-        field.setLeft(lbl);
+    private void setIcon(String iconString) {
+        Image img = new Image(getClass().getResource(iconString).toExternalForm());
+        ImageView imgV = new ImageView(img);
+        lbl.setGraphic(imgV);
+        this.setLeft(lbl);
 
     }
 
-    private static void setChange(CustomTextField field) {
-        field.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
-            if (field.getText().isEmpty()) {
-                setIcon(field, iconSearch);
-                icon.setCursor(Cursor.DEFAULT);
-            } else {
-                setIcon(field, iconCancel);
-                icon.setCursor(Cursor.HAND);
+    private void setChange() {
+        this.setOnKeyTyped((event) -> {
+            this.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+                if (newValue.isEmpty()) {
+                    isSearch = false;
+                    setIcon(ImageClass.icSearch_A());
+                    lbl.setCursor(Cursor.DEFAULT);
+                } else {
+                    isSearch = true;
+                    setIcon(ImageClass.icCancel_A());
+                    lbl.setCursor(Cursor.HAND);
+                }
+            });
+        });
+    }
+
+    private void setDeleteOption(CustomTextField field) {
+        lbl.setOnMouseClicked((event) -> {
+            if (isSearch) {
+                field.setText("");
             }
         });
     }
-    
-    private void setDeleteOption(CustomTextField field){   
-        icon.setOnMouseClicked((event) -> {
-            field.setText("");
-        });       
-    }    
 }
