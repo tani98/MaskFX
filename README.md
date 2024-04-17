@@ -5,31 +5,35 @@ El proyecto es una librería de JavaFX que proporciona una serie de componentes 
 
 ## Uso
 
-## Ejemplos
-```java
-// Ejemplo de cómo crear un botón utilizando la librería JavaFX
-
 En el pom.xml
 
-Agregar repositorio jitpack paara poder usarla 
+Agregar repositorio jitpack para poder usarla 
 
+```xml
 <repository>
    <id>jitpack.io</id>
    <url>https://jitpack.io</url>
-</repository>    
+</repository>
+```
 
 Agregar dependecia
 
+```xml
 <dependency>
    <groupId>org.bitbucket.tanieska98</groupId>
    <artifactId>maskfx</artifactId>
    <version>1.2</version>
 </dependency>
+```
 
-En el archivo xml
+En el archivo fxml
 
 Importar el elemento
+```xml
 <?import com.crazycode.mask.elements.MaskField?>
+```
 
-Usar elemento 
+Aplicar elemento, en mask se debe definir el patrón 
+```xml
 <MaskField fx:id="txtIdentityCard" mask="NNN-NNNNNN-NNNNL" />
+```
